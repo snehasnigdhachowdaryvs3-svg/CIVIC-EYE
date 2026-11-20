@@ -282,5 +282,4 @@ def file_too_large(error):
 # ---------------- RUN APPLICATION ----------------
 
 if __name__ == "__main__":
-    create_database()
     app.run(debug=True)
