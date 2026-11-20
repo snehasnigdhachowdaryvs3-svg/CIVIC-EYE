@@ -281,5 +281,8 @@ def file_too_large(error):
 
 # ---------------- RUN APPLICATION ----------------
 
+# Create database and table when Render starts the application
+create_database()
+
 if __name__ == "__main__":
     app.run(debug=True)
