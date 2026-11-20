@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIVIC EYE | Report Civic Issue</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="header">
+    <h1>CIVIC EYE</h1>
+    <p>Smart Civic Issue Reporting System</p>
+</header>
+
+<main class="container">
+
+    <section class="form-card">
+        <h2>Report a Civic Issue</h2>
+        <p class="subtitle">
+            Help make your community cleaner, safer and better.
+        </p>
+
+        <!-- Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- Complaint Form -->
+        <form action="{{ url_for('submit') }}"
+              method="POST"
+              enctype="multipart/form-data">
+
+            <label for="name">Your Name *</label>
+            <input type="text"
+                   id="name"
+                   name="name"
+                   placeholder="Enter your name"
+                   required>
+
+            <label for="location">Issue Location *</label>
+            <input type="text"
+                   id="location"
+                   name="location"
+                   placeholder="Street, area or landmark"
+                   required>
+
+            <label for="issue_type">Issue Category *</label>
+            <select id="issue_type" name="issue_type" required>
+                <option value="">Select an issue</option>
+                <option value="Garbage">Garbage</option>
+                <option value="Road Damage">Road Damage</option>
+                <option value="Water Leakage">Water Leakage</option>
+                <option value="Street Light">Street Light</option>
+                <option value="Drainage">Drainage</option>
+                <option value="Public Safety">Public Safety</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="description">Issue Description *</label>
+            <textarea id="description"
+                      name="description"
+                      rows="4"
+                      placeholder="Explain the civic issue..."
+                      required></textarea>
+
+            <!-- Photo upload -->
+            <label for="photo">Upload Problem Photo (Optional)</label>
+            <input type="file"
+                   id="photo"
+                   name="photo"
+                   accept="image/jpeg,image/png,image/webp">
+
+            <p class="small-note">
+                Choose a photo from your gallery or take a picture.
+                JPG, PNG, WEBP — maximum 5 MB.
+            </p>
+
+            <!-- Photo preview -->
+            <img id="photoPreview"
+                 class="photo-preview"
+                 alt="Selected civic issue photo preview">
+
+            <!-- GPS -->
+            <div class="gps-section">
+                <button type="button"
+                        id="locationButton"
+                        class="gps-button">
+                    📍 Use My Current Location
+                </button>
+
+                <p id="locationMessage">
+                    GPS location is optional.
+                </p>
+            </div>
+
+            <input type="hidden"
+                   id="latitude"
+                   name="latitude">
+
+            <input type="hidden"
+                   id="longitude"
+                   name="longitude">
+
+            <!-- Submit -->
+            <button type="submit" class="submit-button">
+                Submit Complaint
+            </button>
+
+        </form>
+    </section>
+
+    <!-- Admin dashboard link -->
+    <div class="dashboard-link">
+        <a href="{{ url_for('view_complaints') }}">
+            Open Admin Dashboard →
+        </a>
+    </div>
+
+</main>
+
+<footer>
+    <p>© 2026 CIVIC EYE</p>
+    <p>Smart Civic Issue Reporting System</p>
+</footer>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

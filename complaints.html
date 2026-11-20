@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIVIC EYE | Admin Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="header">
+    <h1>CIVIC EYE</h1>
+    <p>Complaint Management Dashboard</p>
+</header>
+
+<main class="container dashboard">
+
+    <h2>Admin Dashboard</h2>
+    <p class="subtitle">Review and manage submitted civic complaints.</p>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Dashboard statistics -->
+    <div class="stats-grid">
+
+        <div class="stat-card total">
+            <span>Total Complaints</span>
+            <h3>{{ total_count }}</h3>
+        </div>
+
+        <div class="stat-card pending">
+            <span>Pending</span>
+            <h3>{{ pending_count }}</h3>
+        </div>
+
+        <div class="stat-card progress">
+            <span>In Progress</span>
+            <h3>{{ progress_count }}</h3>
+        </div>
+
+        <div class="stat-card resolved">
+            <span>Resolved</span>
+            <h3>{{ resolved_count }}</h3>
+        </div>
+
+    </div>
+
+    <!-- Pending alert -->
+    {% if pending_count > 0 %}
+        <div class="notification">
+            🔔 You have {{ pending_count }}
+            complaint(s) awaiting review.
+        </div>
+    {% else %}
+        <div class="notification all-clear">
+            ✓ No pending complaints at this time.
+        </div>
+    {% endif %}
+
+    <!-- Search -->
+    <form action="{{ url_for('view_complaints') }}"
+          method="GET"
+          class="search-form">
+
+        <input type="text"
+               name="q"
+               value="{{ search }}"
+               placeholder="Search name, location, issue...">
+
+        <button type="submit" class="search-button">
+            Search
+        </button>
+
+        <a href="{{ url_for('view_complaints') }}"
+           class="clear-link">
+            Clear
+        </a>
+    </form>
+
+    <p class="complaint-count">
+        Complaints shown: {{ complaints|length }}
+    </p>
+
+    <!-- Complaint cards -->
+    {% for complaint in complaints %}
+
+        <section class="complaint-card">
+
+            <h3>Complaint #{{ complaint["id"] }}</h3>
+
+            <p><strong>Name:</strong> {{ complaint["name"] }}</p>
+
+            <p><strong>Location:</strong> {{ complaint["location"] }}</p>
+
+            <p><strong>Category:</strong> {{ complaint["issue_type"] }}</p>
+
+            <p>
+                <strong>Description:</strong>
+                {{ complaint["description"] }}
+            </p>
+
+            {% if complaint["created_at"] %}
+                <p>
+                    <strong>Submitted:</strong>
+                    {{ complaint["created_at"] }}
+                </p>
+            {% endif %}
+
+            <!-- Uploaded photo -->
+            {% if complaint["photo"] %}
+                <div class="uploaded-photo-section">
+                    <p><strong>Issue Photo:</strong></p>
+
+                    <a href="{{ url_for('static',
+                              filename='uploads/' + complaint['photo']) }}"
+                       target="_blank"
+                       rel="noopener noreferrer">
+
+                        <img class="complaint-photo"
+                             src="{{ url_for('static',
+                                 filename='uploads/' + complaint['photo']) }}"
+                             alt="Uploaded complaint photo">
+                    </a>
+                </div>
+            {% else %}
+                <p><strong>Photo:</strong> No photo uploaded.</p>
+            {% endif %}
+
+            <!-- GPS and Maps -->
+            {% if complaint["latitude"] and complaint["longitude"] %}
+
+                <p>
+                    <strong>GPS Coordinates:</strong><br>
+                    {{ complaint["latitude"] }},
+                    {{ complaint["longitude"] }}
+                </p>
+
+                <a class="map-link"
+                   href="https://www.google.com/maps?q={{ complaint['latitude'] }},{{ complaint['longitude'] }}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    📍 View on Google Maps
+                </a>
+
+            {% else %}
+                <p><strong>GPS:</strong> Not provided.</p>
+            {% endif %}
+
+            <!-- Current status -->
+            <div class="status-line">
+                <strong>Current Status:</strong>
+                <span class="status-badge
+                    {% if complaint['status'] == 'Resolved' %}
+                        resolved-badge
+                    {% elif complaint['status'] == 'In Progress' %}
+                        progress-badge
+                    {% else %}
+                        pending-badge
+                    {% endif %}">
+                    {{ complaint["status"] }}
+                </span>
+            </div>
+
+            <!-- Admin status update -->
+            <form action="{{ url_for('update_status') }}"
+                  method="POST"
+                  class="status-form">
+
+                <input type="hidden"
+                       name="complaint_id"
+                       value="{{ complaint['id'] }}">
+
+                <label for="status-{{ complaint['id'] }}">
+                    Update Complaint Status
+                </label>
+
+                <select name="status"
+                        id="status-{{ complaint['id'] }}">
+
+                    <option value="Pending"
+                        {% if complaint["status"] == "Pending" %}
+                            selected
+                        {% endif %}>
+                        Pending
+                    </option>
+
+                    <option value="In Progress"
+                        {% if complaint["status"] == "In Progress" %}
+                            selected
+                        {% endif %}>
+                        In Progress
+                    </option>
+
+                    <option value="Resolved"
+                        {% if complaint["status"] == "Resolved" %}
+                            selected
+                        {% endif %}>
+                        Resolved
+                    </option>
+
+                </select>
+
+                <button type="submit" class="update-button">
+                    Update Status
+                </button>
+
+            </form>
+
+        </section>
+
+    {% else %}
+
+        <div class="empty-message">
+            No complaints found.
+        </div>
+
+    {% endfor %}
+
+    <a href="{{ url_for('home') }}" class="back-link">
+        ← Back to Complaint Form
+    </a>
+
+</main>
+
+<footer>
+    <p>© 2026 CIVIC EYE</p>
+    <p>Smart Civic Issue Reporting System</p>
+</footer>
+
+</body>
+</html>
